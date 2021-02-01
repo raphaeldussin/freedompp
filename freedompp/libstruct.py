@@ -173,6 +173,8 @@ def print_freq(freq):
         cfreq = "6hr"
     elif freq == "3hr":
         cfreq = "3hr"
+    else:
+        raise ValueError(f"unknown format for frequency {freq}")
 
     return cfreq
 
@@ -206,7 +208,7 @@ def format_year_bounds(yearstart, yearend, cformat="yyyy"):
         cyearlast = f"{yearend:04d}1231"
     elif cformat == "yyyymmddhh":
         cyearstart = f"{yearstart:04d}010100"
-        cyearlast = f"{yearend:04d}010123"
+        cyearlast = f"{yearend:04d}123123"
     else:
         raise ValueError("unknown format for bounds")
 
