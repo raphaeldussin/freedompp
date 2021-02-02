@@ -1,3 +1,4 @@
+dask[complete]
 xarray>0.16.0
 h5netcdf
 numpy
