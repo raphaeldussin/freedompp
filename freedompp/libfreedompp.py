@@ -10,15 +10,7 @@ from freedompp.libstruct import ppsubdirname, tsfilename
 
 
 def load_timeserie(
-    field,
-    comesfrom,
-    yearstart,
-    yearend,
-    ppdir="",
-    historydir="",
-    freq=None,
-    in_memory=True,
-    ftype="nc",
+    field, comesfrom, yearstart, yearend, historydir="", in_memory=True, ftype="nc",
 ):
 
     # infer what tar archives are needed
@@ -51,16 +43,14 @@ def write_timeserie(
         comesfrom,
         yearstart,
         yearend,
-        ppdir=ppdir,
         historydir=historydir,
-        freq=freq,
         in_memory=in_memory,
         ftype=ftype,
     )
     # define FRE-like pp subdirectory name
     ppsubdir = ppsubdirname(comesfrom, yearstart, yearend, freq=freq, pptype="ts")
     # define the FRE-like name of the produced file
-    fname = tsfilename(field, comesfrom, yearstart, yearend, freq=None, ftype=ftype)
+    fname = tsfilename(field, comesfrom, yearstart, yearend, freq=freq, ftype=ftype)
     # check the output directory exist or create it
     chkdir(ppdir, ppsubdir)
     # write the file
