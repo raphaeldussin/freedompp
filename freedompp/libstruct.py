@@ -227,3 +227,45 @@ def check_bounds(yearstart, yearend):
         raise ValueError("last year cannot be less than first year")
 
     return None
+
+
+def archives_needed(yearstart, yearend, historydir=""):
+    """create a list of the archive files needed for a segment of years
+
+    Args:
+        yearstart (int): start year of time segment
+        yearend (int): end year of time segment
+        historydir (str, optional): path to history directory,
+                                    where .nc.tar live.
+                                    Defaults to "".
+
+    Returns:
+        list of str: list of archive files
+    """
+
+    archives = []
+    for year in range(yearstart, yearend + 1):
+        archives.append(f"{historydir}/{year:04d}0101.nc.tar")
+
+    return archives
+
+
+def files_needed(comesfrom, yearstart, yearend, ftype="nc"):
+    """create a list of files needed for the creation of dataset
+
+    Args:
+        comesfrom (str): parent dataset
+        yearstart (int): start year of time segment
+        yearend (int): end year of time segment
+        ftype (str, optional): file type (nc or tile[1-6].nc).
+                               Defaults to "nc".
+
+    Returns:
+        list of str: list of files needed inside archives
+    """
+
+    files = []
+    for year in range(yearstart, yearend + 1):
+        files.append(f"./{year:04d}0101.{comesfrom}.{ftype}")
+
+    return files

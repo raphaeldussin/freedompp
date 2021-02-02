@@ -1,6 +1,26 @@
 import pytest
 
 
+def test_files_needed():
+    from freedompp.libstruct import files_needed
+
+    out = files_needed("ocean_annual", 1, 10)
+    assert len(out) == 10
+    assert out[0] == "./00010101.ocean_annual.nc"
+
+
+def test_archives_needed():
+    from freedompp.libstruct import archives_needed
+
+    out = archives_needed(1, 10)
+    assert len(out) == 10
+    assert out[0] == "/00010101.nc.tar"
+
+    out = archives_needed(1, 10, historydir="/tmp/history")
+    assert len(out) == 10
+    assert out[5] == "/tmp/history/00060101.nc.tar"
+
+
 def test_check_bounds():
     from freedompp.libstruct import check_bounds
 
