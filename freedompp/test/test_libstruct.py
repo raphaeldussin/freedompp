@@ -8,6 +8,10 @@ def test_files_needed():
     assert len(out) == 10
     assert out[0] == "./00010101.ocean_annual.nc"
 
+    out = files_needed("ocean_annual", 1, 10, prefix="")
+    assert len(out) == 10
+    assert out[0] == "00010101.ocean_annual.nc"
+
 
 def test_archives_needed():
     from freedompp.libstruct import archives_needed

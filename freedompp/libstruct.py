@@ -250,7 +250,7 @@ def archives_needed(yearstart, yearend, historydir=""):
     return archives
 
 
-def files_needed(comesfrom, yearstart, yearend, ftype="nc"):
+def files_needed(comesfrom, yearstart, yearend, ftype="nc", prefix="./"):
     """create a list of files needed for the creation of dataset
 
     Args:
@@ -259,6 +259,8 @@ def files_needed(comesfrom, yearstart, yearend, ftype="nc"):
         yearend (int): end year of time segment
         ftype (str, optional): file type (nc or tile[1-6].nc).
                                Defaults to "nc".
+        prefix (str,optional): prefix for files in tar archive.
+                               Defaults to "./".
 
     Returns:
         list of str: list of files needed inside archives
@@ -266,6 +268,6 @@ def files_needed(comesfrom, yearstart, yearend, ftype="nc"):
 
     files = []
     for year in range(yearstart, yearend + 1):
-        files.append(f"./{year:04d}0101.{comesfrom}.{ftype}")
+        files.append(f"{prefix}{year:04d}0101.{comesfrom}.{ftype}")
 
     return files

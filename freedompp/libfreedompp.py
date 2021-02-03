@@ -10,13 +10,20 @@ from freedompp.libstruct import ppsubdirname, tsfilename
 
 
 def load_timeserie(
-    field, comesfrom, yearstart, yearend, historydir="", in_memory=True, ftype="nc",
+    field,
+    comesfrom,
+    yearstart,
+    yearend,
+    historydir="",
+    in_memory=True,
+    ftype="nc",
+    prefix="./",
 ):
 
     # infer what tar archives are needed
     used_archives = archives_needed(yearstart, yearend, historydir=historydir)
     # infer which files from these archives are needed
-    used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype)
+    used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
     ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
     # extract the timeserie of the chosen field
