@@ -1,5 +1,6 @@
 import cftime
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 mom6like = xr.Dataset(
@@ -53,6 +54,24 @@ mom6like = xr.Dataset(
     attrs=dict(description="Synthetic MOM6 data"),
 )
 
+ndays = 3652
+ds_1d = xr.Dataset(
+    {"data": xr.DataArray(np.arange(ndays), dims=("time"))},
+    coords={"time": pd.date_range("1900-01-01", freq="1d", periods=ndays)},
+)
+
+nmonths = 10 * 12
+ds_1m = xr.Dataset(
+    {"data": xr.DataArray(np.arange(nmonths), dims=("time"))},
+    coords={"time": pd.date_range("1900-01-01", freq="1m", periods=nmonths)},
+)
+
+nyears = 10
+ds_1y = xr.Dataset(
+    {"data": xr.DataArray(np.arange(nyears), dims=("time"))},
+    coords={"time": pd.date_range("1900-01-01", freq="1y", periods=nyears)},
+)
+
 
 def test_extract_timeserie():
     from freedompp.libcompute import extract_timeserie
@@ -60,3 +79,34 @@ def test_extract_timeserie():
     ds = extract_timeserie(mom6like, "tos")
     assert isinstance(ds, xr.core.dataset.Dataset)
     assert "tos" in ds.variables
+
+
+def test_simple_average():
+    from freedompp.libcompute import simple_average
+
+    ave_1y = simple_average(ds_1y)
+    expected = np.arange(nyears).sum() / nyears
+    assert np.allclose(ave_1y["data"], expected)
+
+    ave_1d = simple_average(ds_1d)
+    expected = np.arange(ndays).sum() / ndays
+    assert np.allclose(ave_1d["data"], expected)
+
+
+def test_weighted_by_month_length_average():
+    from freedompp.libcompute import weighted_by_month_length_average
+
+    ave = weighted_by_month_length_average(ds_1m)
+    expected = (ds_1m["data"] * ds_1m["time"].dt.days_in_month).sum() / (
+        ds_1m["time"].dt.days_in_month
+    ).sum()
+    assert np.allclose(ave["data"].values, expected.values)
+
+
+def test_month_by_month_average():
+    from freedompp.libcompute import month_by_month_average
+
+    ave = month_by_month_average(ds_1m)
+    assert len(ave["data"]) == 12
+    ave = month_by_month_average(ds_1d)
+    assert len(ave["data"]) == 12

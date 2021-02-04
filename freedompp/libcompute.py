@@ -20,22 +20,62 @@ def extract_timeserie(ds, field):
     return ts
 
 
-def compute_average(ds, avedim="time"):
-    """[summary]
+def simple_average(ds, avedim="time"):
+    """the most simple average, valid for non-weighted averages such as
+    interannual from annual means
 
     Args:
         ds (xr.core.dataset.Dataset): multiple variable dataset
-        avedim (str, optional): [description]. Defaults to "time".
+        avedim (str, optional): name of time dimension. Defaults to "time".
 
     Returns:
-        [type]: [description]
+        xr.core.dataset.Dataset: averaged dataset
     """
 
     if not isinstance(ds, xr.core.dataset.Dataset):
         raise TypeError("ds must be a xarray.Dataset")
 
-    av = ds.mean(dim=avedim)
-    return av
+    ave = ds.mean(dim=avedim)
+    return ave
+
+
+def weighted_by_month_length_average(ds, avedim="time"):
+    """average weighted by the number of days in each month,
+    e.g. valid for annual mean from monthly means
+
+    Args:
+        ds (xr.core.dataset.Dataset): multiple variable dataset
+        avedim (str, optional): name of time dimension. Defaults to "time".
+
+    Returns:
+        xr.core.dataset.Dataset: averaged dataset
+    """
+
+    ds_weighted = ds.weighted(ds[avedim].dt.days_in_month)
+    ave = ds_weighted.mean(dim=avedim)
+    return ave
+
+
+def month_by_month_average(ds, avedim="time"):
+    """compute interannual averages for each month
+
+    Args:
+        ds (xr.core.dataset.Dataset): multiple variable dataset
+        avedim (str, optional): name of time dimension. Defaults to "time".
+
+    Returns:
+        xr.core.dataset.Dataset: averaged dataset
+    """
+
+    monthly_ave = ds.groupby(ds[avedim].dt.month).mean(dim=avedim)
+    # replace month by time
+    monthly_ave = monthly_ave.rename({"month": avedim})
+    dates = []
+    for month in range(12):
+        dates.append(ds[avedim][month::12].mean().values)
+    monthly_ave[avedim] = xr.DataArray(dates, dims=(avedim))
+
+    return monthly_ave
 
 
 # this is where refineDiag should go
