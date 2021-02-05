@@ -49,6 +49,7 @@ def write_timeserie(
     in_memory=True,
     ftype="nc",
     chunks=None,
+    prefix="./",
 ):
 
     # infer what tar archives are needed
