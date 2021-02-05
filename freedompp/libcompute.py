@@ -35,7 +35,11 @@ def simple_average(ds, avedim="time"):
     if not isinstance(ds, xr.core.dataset.Dataset):
         raise TypeError("ds must be a xarray.Dataset")
 
-    ave = ds.mean(dim=avedim)
+    ave = ds.mean(dim=avedim).expand_dims(dim=avedim)
+    dates = []
+    dates.append(ds[avedim].mean().values)
+    ave[avedim] = xr.DataArray(dates, dims=(avedim))
+    ave = ave.set_coords([avedim])
     return ave
 
 
@@ -51,8 +55,22 @@ def weighted_by_month_length_average(ds, avedim="time"):
         xr.core.dataset.Dataset: averaged dataset
     """
 
-    ds_weighted = ds.weighted(ds[avedim].dt.days_in_month)
-    ave = ds_weighted.mean(dim=avedim)
+    tmp = ds.copy()
+    problem_children = ["time_bnds", "average_T1", "average_T2", "average_DT"]
+    for var in problem_children:
+        if var in ds.variables:
+            tmp = tmp.drop_vars([var])
+    days_in_month = ds[avedim].dt.days_in_month
+    ave = (tmp * days_in_month).sum(dim=avedim).expand_dims(
+        dim=avedim
+    ) / days_in_month.sum()
+    # add time variables back
+    meantime = ds[avedim].mean().values
+    ave[avedim] = xr.DataArray([meantime], dims=(avedim))
+    # this does not work yet
+    # for var in problem_children:
+    #    if var in ds.variables:
+    #        ave[var] = ds[var].mean(dim=avedim)
     return ave
 
 
@@ -76,6 +94,25 @@ def month_by_month_average(ds, avedim="time"):
     monthly_ave[avedim] = xr.DataArray(dates, dims=(avedim))
 
     return monthly_ave
+
+
+def extract_month_number(ds, month, avedim="time"):
+    """pick a month between 0-11 and add time dimension
+
+    Args:
+        ds (xr.core.dataset.Dataset): 12 month dataset
+        month (int): month (0-11)
+        avedim (str, optional): name of time dimension. Defaults to "time".
+
+    Returns:
+        ds_mm: 1 month dataset
+    """
+
+    ds_mm = ds.isel({avedim: month}).expand_dims(
+        dim=avedim
+    )  # pick data for the current month
+
+    return ds_mm
 
 
 # this is where refineDiag should go

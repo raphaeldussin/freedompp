@@ -69,16 +69,19 @@ def close_all_filelikes(flikes):
     return None
 
 
-def write_ncfile(ds, filename):
+def write_ncfile(ds, filename, chunks=None):
     """write dataset to netcdf file
 
     Args:
-        ds (): [description]
-        filename ([type]): [description]
-
-    Returns:
-        [type]: [description]
+        ds (xarray.core.dataset.Dataset): dataset to write
+        filename (str): name of the output file
+        chunks (dict, optional): dictionary containing chunk sizes,
+                                 e.g. {'time': 1, 'z': 35}.
+                                 Defaults to None.
     """
+    # fix chunksize
+    if chunks is not None:
+        ds = ds.chunk(chunks)
 
     ds.to_netcdf(filename)
 
@@ -86,7 +89,7 @@ def write_ncfile(ds, filename):
 
 
 def chkdir(ppdir, ppsubdir):
-    """[summary]
+    """create directory if it does not exists
 
     Args:
         ppdir (str): pp directory (e.g. CM4_piControl/ncrc4.intel18/pp)
