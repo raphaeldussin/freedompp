@@ -181,12 +181,12 @@ def write_average(
         # write the file
         write_ncfile(ave, f"{ppdir}/{ppsubdir}/{fname}", chunks=chunks)
     elif avtype == "mm":
-        for kt in range(12):  # loop over month
-            month = f"{kt+1:02d}"  # in format 01-12
+        for month in range(1, 12 + 1):  # loop over month
+            cmonth = f"{month:02d}"  # in format 01-12
             # pick data for the current month
-            ave_mm = extract_month_number(ave, kt, avedim=avedim)
+            ave_mm = extract_month_number(ave, month, avedim=avedim)
             # define the FRE-like name of the produced file
-            fname = avfilename(comesfrom, yearstart, yearend, month, ftype=ftype)
+            fname = avfilename(comesfrom, yearstart, yearend, cmonth, ftype=ftype)
             # write the file
             write_ncfile(ave_mm, f"{ppdir}/{ppsubdir}/{fname}", chunks=chunks)
     else:

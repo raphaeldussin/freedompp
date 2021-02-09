@@ -48,7 +48,7 @@ def open_files_from_archives(files, archives, in_memory=True):
         flikes = []
         for f, a in zip(files, archives):
             flikes.append(filelike(a, f))
-        ds = xr.open_mfdataset(flikes)
+        ds = xr.open_mfdataset(flikes, decode_times=False)
     else:
         raise NotImplementedError("")
 
@@ -69,7 +69,7 @@ def close_all_filelikes(flikes):
     return None
 
 
-def write_ncfile(ds, filename, chunks=None):
+def write_ncfile(ds, filename, chunks=None, avedim="time"):
     """write dataset to netcdf file
 
     Args:
@@ -78,12 +78,13 @@ def write_ncfile(ds, filename, chunks=None):
         chunks (dict, optional): dictionary containing chunk sizes,
                                  e.g. {'time': 1, 'z': 35}.
                                  Defaults to None.
+        avedim (str, optional): Name of time dimension. Defaults to "time".
     """
     # fix chunksize
     if chunks is not None:
         ds = ds.chunk(chunks)
 
-    ds.to_netcdf(filename)
+    ds.to_netcdf(filename, unlimited_dims=[avedim])
 
     return None
 
