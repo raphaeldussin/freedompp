@@ -44,6 +44,10 @@ def simple_average(ds, avedim="time"):
     ave = ds.mean(dim=avedim).expand_dims(dim=avedim)
     # overwrite time variables:
     ave = compute_time_vars_ann(ds, ave, avedim=avedim)
+    # add attributes
+    for var in ave.variables:
+        if var in ds.variables:
+            ave[var].attrs = ds[var].attrs
     return ave
 
 
@@ -68,6 +72,10 @@ def weighted_by_month_length_average(ds, avedim="time"):
     ave = ave.expand_dims(dim=avedim)
     # then add time variables back:
     ave = compute_time_vars_ann(ds, ave, avedim=avedim)
+    # add attributes
+    for var in ave.variables:
+        if var in ds.variables:
+            ave[var].attrs = ds[var].attrs
     return ave
 
 
@@ -89,12 +97,16 @@ def month_by_month_average(ds, avedim="time", bndsdim="nv"):
     # decode times into cftime objects inside a cftime dataset
     cftime = xr.decode_cf(ds[avedim].to_dataset(name="cftime"), use_cftime=True)
     # use the cftime to group by month
-    monthly_ave = dsnt.groupby(cftime[avedim].dt.month).mean(dim=avedim)
+    ave = dsnt.groupby(cftime[avedim].dt.month).mean(dim=avedim)
     # replace month by time
-    monthly_ave = monthly_ave.rename({"month": avedim})
+    ave = ave.rename({"month": avedim})
     # add the time variables
-    monthly_ave = compute_time_vars_mm(ds, monthly_ave, avedim=avedim, bndsdim=bndsdim)
-    return monthly_ave
+    ave = compute_time_vars_mm(ds, ave, avedim=avedim, bndsdim=bndsdim)
+    # add attributes
+    for var in ave.variables:
+        if var in ds.variables:
+            ave[var].attrs = ds[var].attrs
+    return ave
 
 
 def extract_month_number(ave, month, avedim="time"):

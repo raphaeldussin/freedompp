@@ -84,7 +84,16 @@ def write_ncfile(ds, filename, chunks=None, avedim="time"):
     if chunks is not None:
         ds = ds.chunk(chunks)
 
-    ds.to_netcdf(filename, unlimited_dims=[avedim])
+    encoding = {}
+    for var in ds:
+        encoding.update({var: {"_FillValue": 1e20}})
+    ds.to_netcdf(
+        filename,
+        unlimited_dims=[avedim],
+        encoding=encoding,
+        engine="netcdf4",
+        format="NETCDF4",
+    )
 
     return None
 

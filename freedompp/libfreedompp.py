@@ -82,12 +82,14 @@ def write_timeserie(
         yearend (int): last year of the time serie
         historydir (str, optional): path to the directory containing "history"
                                     tar files. Defaults to "./".
-        ppdir (str, optional): [description]. Defaults to "".
-        rename_to ([type], optional): [description]. Defaults to None.
-        freq ([type], optional): [description]. Defaults to None.
+        ppdir (str, optional): path for pp (output) files. Defaults to "".
+        rename_to (str, optional): replace parent name "comesfrom" by this
+                                   override in pp. Defaults to None.
+        freq (str, optional): override for file frequency. Defaults to None.
         ftype (str, optional): file type (e.g. nc or tileX.nc).
                                Defaults to "nc".
-        chunks ([type], optional): [description]. Defaults to None.
+        chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
+                                 Defaults to None, i.e. original chunking
         prefix (str, optional): prefix of netcdf files in tar archives.
                                 Defaults to "./".
         in_memory (bool, optional): extract data into memory (=no disk IO).
@@ -103,11 +105,11 @@ def write_timeserie(
     ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
-    # define FRE-like pp subdirectory name
-    ppsubdir = ppsubdirname(comesfrom, yearstart, yearend, freq=freq, pptype="ts")
     # override directory/file names in pp if override
     if rename_to is not None:
         comesfrom = rename_to
+    # define FRE-like pp subdirectory name
+    ppsubdir = ppsubdirname(comesfrom, yearstart, yearend, freq=freq, pptype="ts")
     # define the FRE-like name of the produced file
     fname = tsfilename(field, comesfrom, yearstart, yearend, freq=freq, ftype=ftype)
     # check the output directory exist or create it
