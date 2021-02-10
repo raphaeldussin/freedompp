@@ -20,11 +20,31 @@ def load_timeserie(
     comesfrom,
     yearstart,
     yearend,
-    historydir="",
-    in_memory=True,
+    historydir="./",
     ftype="nc",
     prefix="./",
+    in_memory=True,
 ):
+    """load timeserie of a field from netcdf files contained in tar files
+
+    Args:
+        field (str): name of the field to load
+        comesfrom (str): name of netcdf file containing field without date
+                         prefix and filetype suffix (e.g. ocean_annual_z)
+        yearstart (int): first year of the time serie
+        yearend (int): last year of the time serie
+        historydir (str, optional): path to the directory containing "history"
+                                    tar files. Defaults to "./".
+        ftype (str, optional): file type (e.g. nc or tileX.nc).
+                               Defaults to "nc".
+        prefix (str, optional): prefix of netcdf files in tar archives.
+                                Defaults to "./".
+        in_memory (bool, optional): extract data into memory (=no disk IO).
+                                    Defaults to True.
+
+    Returns:
+        xarray.Dataset: timeserie for field and coordinates
+    """
 
     # infer what tar archives are needed
     used_archives = archives_needed(yearstart, yearend, historydir=historydir)
@@ -43,14 +63,37 @@ def write_timeserie(
     comesfrom,
     yearstart,
     yearend,
-    ppdir="",
     historydir="",
+    ppdir="",
+    rename_to=None,
     freq=None,
-    in_memory=True,
     ftype="nc",
     chunks=None,
     prefix="./",
+    in_memory=True,
 ):
+    """write timeserie of a field from netcdf files contained in tar files
+
+    Args:
+        field (str): name of the field to load
+        comesfrom (str): name of netcdf file containing field without date
+                         prefix and filetype suffix (e.g. ocean_annual_z)
+        yearstart (int): first year of the time serie
+        yearend (int): last year of the time serie
+        historydir (str, optional): path to the directory containing "history"
+                                    tar files. Defaults to "./".
+        ppdir (str, optional): [description]. Defaults to "".
+        rename_to ([type], optional): [description]. Defaults to None.
+        freq ([type], optional): [description]. Defaults to None.
+        ftype (str, optional): file type (e.g. nc or tileX.nc).
+                               Defaults to "nc".
+        chunks ([type], optional): [description]. Defaults to None.
+        prefix (str, optional): prefix of netcdf files in tar archives.
+                                Defaults to "./".
+        in_memory (bool, optional): extract data into memory (=no disk IO).
+                                    Defaults to True.
+
+    """
 
     # infer what tar archives are needed
     used_archives = archives_needed(yearstart, yearend, historydir=historydir)
@@ -62,6 +105,9 @@ def write_timeserie(
     ts = extract_timeserie(ds, field)
     # define FRE-like pp subdirectory name
     ppsubdir = ppsubdirname(comesfrom, yearstart, yearend, freq=freq, pptype="ts")
+    # override directory/file names in pp if override
+    if rename_to is not None:
+        comesfrom = rename_to
     # define the FRE-like name of the produced file
     fname = tsfilename(field, comesfrom, yearstart, yearend, freq=freq, ftype=ftype)
     # check the output directory exist or create it
@@ -80,13 +126,37 @@ def compute_average(
     yearstart,
     yearend,
     historydir="",
+    avtype="ann",
     freq=None,
-    in_memory=True,
     ftype="nc",
     prefix="./",
-    avtype="ann",
     avedim="time",
+    in_memory=True,
 ):
+    """compute averages of fields from netcdf files contained in tar files
+
+    Args:
+        comesfrom (str): name of netcdf file containing field without date
+                         prefix and filetype suffix (e.g. ocean_annual_z)
+        yearstart (int): first year of the time serie
+        yearend (int): last year of the time serie
+        historydir (str, optional): path to the directory containing "history"
+                                    tar files. Defaults to "./".
+        avtype (str, optional): annual or monthly average (ann/mm).
+                                Defaults to "ann".
+        freq (str, optional): override for file frequency. Defaults to None.
+        ftype (str, optional): file type (e.g. nc or tileX.nc).
+                               Defaults to "nc".
+        prefix (str, optional): prefix of netcdf files in tar archives.
+                                Defaults to "./".
+        avedim (str, optional): override for name of time dimension.
+                                Defaults to "time".
+        in_memory (bool, optional): extract data into memory (=no disk IO).
+                                    Defaults to True.
+
+    Returns:
+        xarray.Dataset: average dataset
+    """
 
     # infer what tar archives are needed
     used_archives = archives_needed(yearstart, yearend, historydir=historydir)
@@ -129,14 +199,42 @@ def write_average(
     yearend,
     historydir="",
     ppdir="",
+    avtype="ann",
+    rename_to=None,
     freq=None,
-    in_memory=True,
     ftype="nc",
     prefix="./",
-    avtype="ann",
     avedim="time",
     chunks=None,
+    in_memory=True,
 ):
+    """write averages of fields from netcdf files contained in tar files
+
+    Args:
+        comesfrom (str): name of netcdf file containing field without date
+                         prefix and filetype suffix (e.g. ocean_annual_z)
+        yearstart (int): first year of the time serie
+        yearend (int): last year of the time serie
+        historydir (str, optional): path to the directory containing "history"
+                                    tar files. Defaults to "./".
+        ppdir (str, optional): path for pp (output) files. Defaults to "".
+        avtype (str, optional): annual or monthly average (ann/mm).
+                                Defaults to "ann".
+        rename_to (str, optional): replace parent name "comesfrom" by this
+                                   override in pp. Defaults to None.
+        freq (str, optional): override for file frequency. Defaults to None.
+        ftype (str, optional): file type (e.g. nc or tileX.nc).
+                               Defaults to "nc".
+        prefix (str, optional): prefix of netcdf files in tar archives.
+                                Defaults to "./".
+        avedim (str, optional): override for name of time dimension.
+                                Defaults to "time".
+        chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
+                                 Defaults to None, i.e. original chunking
+        in_memory (bool, optional): extract data into memory (=no disk IO).
+                                    Defaults to True.
+
+    """
 
     # infer what tar archives are needed
     used_archives = archives_needed(yearstart, yearend, historydir=historydir)
@@ -170,6 +268,9 @@ def write_average(
     else:
         raise ValueError(f"unknown average type {avtype}, available: ann / mm")
 
+    # override directory/file names in pp if override
+    if rename_to is not None:
+        comesfrom = rename_to
     # define FRE-like pp subdirectory name
     ppsubdir = ppsubdirname(comesfrom, yearstart, yearend, freq=freq, pptype="av")
     # check the output directory exist or create it
