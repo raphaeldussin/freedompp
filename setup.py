@@ -15,6 +15,5 @@ setup(
     keywords="",
     url="https://github.com/raphaeldussin/freedompp",
     packages=find_packages(),
-    # scripts=["scripts/freedompp_ts",
-    #         "scripts/freedompp_av"],
+    scripts=["scripts/freedompp"],
 )

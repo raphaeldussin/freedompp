@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+
+import argparse
+from freedompp.libfreedompp import write_average
+from freedompp.libfreedompp import write_timeserie
+
+parser = argparse.ArgumentParser(description="freedompp post processing tool")
+
+parser.add_argument(
+    "-t", "--type", type=str, required=True, help="pp timeserie or average: ts/ann/mm"
+)
+
+parser.add_argument(
+    "-f", "--field", type=str, required=False, help="field to process, only if type=ts"
+)
+
+parser.add_argument(
+    "-c",
+    "--comesfrom",
+    type=str,
+    required=True,
+    help="name of the component (e.g. ocean_daily)",
+)
+
+parser.add_argument(
+    "-s", "--yearstart", type=int, required=True, help="first year of time segment"
+)
+
+parser.add_argument(
+    "-e", "--yearend", type=int, required=True, help="final year of time segment"
+)
+
+parser.add_argument(
+    "-d", "--historydir", type=str, required=True, help="path to history tar files"
+)
+
+parser.add_argument(
+    "-o", "--ppdir", type=str, required=True, help="path to output pp files"
+)
+
+parser.add_argument(
+    "-r", "--rename_to", type=str, required=False, help="rename component"
+)
+
+parser.add_argument(
+    "-F", "--freq", type=str, required=False, help="override for component frequency"
+)
+
+parser.add_argument(
+    "-N",
+    "--ftype",
+    type=str,
+    required=False,
+    default="nc",
+    help="file type (e.g. nc or tileX.nc)",
+)
+
+parser.add_argument(
+    "-K",
+    "--chunks",
+    nargs="+",
+    required=False,
+    help="chunk size in output files, default is same as input",
+)
+
+parser.add_argument(
+    "-P",
+    "--prefix",
+    type=str,
+    required=False,
+    default="./",
+    help="prefix of netcdf files in tar archive, default is ./",
+)
+
+parser.add_argument(
+    "-T",
+    "--avedim",
+    type=str,
+    required=False,
+    default="time",
+    help="override for time dimension",
+)
+
+args = vars(parser.parse_args())
+
+# Check user inputs
+# time serie needs field name
+if args["type"] == "ts" and args["field"] is None:
+    raise ValueError("field must be defined when type=ts")
+
+# check type of average/timeserie is available
+if args["type"] not in ["ts", "ann", "mm"]:
+    raise ValueError("unknown type. available are ts, ann, mm")
+
+# Decide on what to do and handle parameters accordingly
+compute_avg = False
+compute_ts = False
+
+if args["type"] in ["ann", "mm"]:
+    compute_avg = True
+    # turn type into avtype
+    args.update({"avtype": args["type"]})
+    # field is not used for averages
+    _ = args.pop("field")
+elif args["type"] in ["ts"]:
+    compute_ts = True
+    # avedim is not used for timeserie
+    _ = args.pop("avedim")
+
+# reshape chunks into a dict
+if args["chunks"] is not None:
+    npairs = len(args["chunks"]) / 2
+    if npairs != int(npairs):
+        raise ValueError("chunks have to be in the form: dim1 n1 dim2 n2")
+    chunks = {}
+    for k in range(int(npairs)):
+        chunks.update({args["chunks"][2 * k]: int(args["chunks"][2 * k + 1])})
+    args["chunks"] = chunks
+
+# this is not needed as this point
+_ = args.pop("type")
+
+# unload args into variables to only keep kwargs
+if "field" in args:
+    field = args.pop("field")
+yearstart = args.pop("yearstart")
+yearend = args.pop("yearend")
+comesfrom = args.pop("comesfrom")
+kwargs = args
+
+
+if compute_avg:
+    write_average(comesfrom, yearstart, yearend, **kwargs)
+
+if compute_ts:
+    write_timeserie(field, comesfrom, yearstart, yearend, **kwargs)
