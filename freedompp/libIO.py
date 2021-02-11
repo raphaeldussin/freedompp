@@ -86,13 +86,17 @@ def write_ncfile(ds, filename, chunks=None, avedim="time"):
 
     encoding = {}
     for var in ds:
-        chunksizes = ()
-        for dim in ds[var].dims:
-            if dim in chunks:
-                chunksizes = chunksizes + (chunks[dim],)
-            else:
-                chunksizes = chunksizes + (len(ds[dim]),)
-        encoding.update({var: {"_FillValue": 1e20, "chunksizes": chunksizes}})
+        if chunks is not None:
+            chunksizes = ()
+            for dim in ds[var].dims:
+                if dim in chunks:
+                    chunksizes = chunksizes + (chunks[dim],)
+                else:
+                    chunksizes = chunksizes + (len(ds[dim]),)
+            encoding.update({var: {"_FillValue": 1e20, "chunksizes": chunksizes}})
+        else:
+            encoding.update({var: {"_FillValue": 1e20}})
+
     ds.to_netcdf(
         filename,
         unlimited_dims=[avedim],
