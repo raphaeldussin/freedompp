@@ -28,7 +28,15 @@ freedompp -t mm -c ocean_month -s 96 -e 100 -d /archive/myrun/history -o /archiv
 
 Other useful options include renaming the output component e.g. ```-r new_component_name```,
 changing chunk sizes e.g. ```-K time 1 z_l 35```, support for tiled output ```-N tile1.nc```,
-as well as various other overrides.
+split files, as well as various other overrides. For example:
+
+```
+freedompp -t ts -f thetao -c ocean_month_z -s 2018 -e 2018 -d /archive/myrun/history -o /archive/myrun/pp \
+          -K time 1 --prefix="" -R -N 4
+```
+
+recombines (-R) split files .nc.000[0-3] (-N/--nsplit=4) stored in the tar file without a prefix and write the recombined file with a chunking (-K/--chunk) of 1 time record.
+
 
 The package can also be used in interactive python environments, with function to load and write
 timeseries and averages.
@@ -43,7 +51,7 @@ ts = load_timeserie('so', 'ocean_month_z', 96, 100, historydir='/archive/myrun/h
 * write a timeserie to disk:
 
 ```python
-from freedompp.libfreedompp import load_timeserie
+from freedompp.libfreedompp import write_timeserie
 write_timeserie('so', 'ocean_month_z', 96, 100, historydir='/archive/myrun/history', ppdir='/archive/myrun/pp')
 ```
 * compute monthly and annual averages:
