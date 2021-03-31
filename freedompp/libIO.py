@@ -21,7 +21,9 @@ def filelike(archive, filename):
     return flike
 
 
-def open_files_from_archives(files, archives, in_memory=True, recombine=False, nsplit=0, chunks=None):
+def open_files_from_archives(
+    files, archives, in_memory=True, recombine=False, nsplit=0, chunks=None
+):
     """build a dataset from list of files and their corresponding archives
 
     Args:
@@ -44,11 +46,13 @@ def open_files_from_archives(files, archives, in_memory=True, recombine=False, n
                           the same number of elements"
         )
 
-    kwargs = dict(combine='by_coords', decode_times=False)
+    kwargs = dict(combine="by_coords", decode_times=False)
     if recombine:
-        kwargs.update({'data_vars': 'minimal'})
+        kwargs.update({"data_vars": "minimal"})
         if chunks is None:
-            raise ValueError("chunks must be explicitly passed when using recombine=True")
+            raise ValueError(
+                "chunks must be explicitly passed when using recombine=True"
+            )
         else:
             kwargs.update({"chunks": chunks})
 

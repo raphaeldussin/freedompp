@@ -60,8 +60,14 @@ def load_timeserie(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
-                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
+    ds, fids = open_files_from_archives(
+        used_files,
+        used_archives,
+        in_memory=in_memory,
+        recombine=recombine,
+        nsplit=nsplit,
+        chunks=chunks,
+    )
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
 
@@ -118,8 +124,14 @@ def write_timeserie(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
-                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
+    ds, fids = open_files_from_archives(
+        used_files,
+        used_archives,
+        in_memory=in_memory,
+        recombine=recombine,
+        nsplit=nsplit,
+        chunks=chunks,
+    )
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
     # override directory/file names in pp if override
@@ -191,8 +203,14 @@ def compute_average(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
-                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
+    ds, fids = open_files_from_archives(
+        used_files,
+        used_archives,
+        in_memory=in_memory,
+        recombine=recombine,
+        nsplit=nsplit,
+        chunks=chunks,
+    )
 
     # figure out frequency of dataset or exit if it cannot
     freq = infer_freq(comesfrom) if freq is None else freq
@@ -276,8 +294,14 @@ def write_average(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
-                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
+    ds, fids = open_files_from_archives(
+        used_files,
+        used_archives,
+        in_memory=in_memory,
+        recombine=recombine,
+        nsplit=nsplit,
+        chunks=chunks,
+    )
 
     # figure out frequency of dataset or exit if it cannot
     freq = infer_freq(comesfrom) if freq is None else freq
