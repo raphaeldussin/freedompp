@@ -47,7 +47,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-N",
+    "-Y",
     "--ftype",
     type=str,
     required=False,
@@ -81,6 +81,24 @@ parser.add_argument(
     help="override for time dimension",
 )
 
+parser.add_argument(
+    "-R",
+    "--recombine",
+    action="store_true",
+    required=False,
+    default=False,
+    help="recombine splitted files (e.g. .nc.????)",
+)
+
+parser.add_argument(
+    "-N",
+    "--nsplit",
+    type=int,
+    required=False,
+    default=0,
+    help="if recombine=True, nsplit=total of files (e.g. 4 for  .nc.000[0-3])",
+)
+
 args = vars(parser.parse_args())
 
 # Check user inputs
@@ -91,6 +109,12 @@ if args["type"] == "ts" and args["field"] is None:
 # check type of average/timeserie is available
 if args["type"] not in ["ts", "ann", "mm"]:
     raise ValueError("unknown type. available are ts, ann, mm")
+
+if args["recombine"]:
+    if args["nsplit"] == 0:
+        raise ValueError("nsplit must be non-zero with recombine=True")
+    if args["chunks"] is None:
+        raise ValueError("chunks must be defined with recombine=True")
 
 # Decide on what to do and handle parameters accordingly
 compute_avg = False

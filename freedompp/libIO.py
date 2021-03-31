@@ -21,7 +21,9 @@ def filelike(archive, filename):
     return flike
 
 
-def open_files_from_archives(files, archives, in_memory=True):
+def open_files_from_archives(
+    files, archives, in_memory=True, recombine=False, nsplit=0, chunks=None
+):
     """build a dataset from list of files and their corresponding archives
 
     Args:
@@ -44,11 +46,26 @@ def open_files_from_archives(files, archives, in_memory=True):
                           the same number of elements"
         )
 
+    kwargs = dict(combine="by_coords", decode_times=False)
+    if recombine:
+        kwargs.update({"data_vars": "minimal"})
+        if chunks is None:
+            raise ValueError(
+                "chunks must be explicitly passed when using recombine=True"
+            )
+        else:
+            kwargs.update({"chunks": chunks})
+
     if in_memory:
         flikes = []
         for f, a in zip(files, archives):
-            flikes.append(filelike(a, f))
-        ds = xr.open_mfdataset(flikes, decode_times=False)
+            if recombine:
+                for kn in range(nsplit):
+                    fnnnn = f"{f}.{kn:04d}"
+                    flikes.append(filelike(a, fnnnn))
+            else:
+                flikes.append(filelike(a, f))
+        ds = xr.open_mfdataset(flikes, **kwargs)
     else:
         raise NotImplementedError("")
 
