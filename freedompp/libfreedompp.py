@@ -24,6 +24,9 @@ def load_timeserie(
     ftype="nc",
     prefix="./",
     in_memory=True,
+    recombine=False,
+    nsplit=0,
+    chunks=None,
 ):
     """load timeserie of a field from netcdf files contained in tar files
 
@@ -41,6 +44,12 @@ def load_timeserie(
                                 Defaults to "./".
         in_memory (bool, optional): extract data into memory (=no disk IO).
                                     Defaults to True.
+        recombine (bool, optional): recombine files at the format *.nc.????
+                                    Defaults to False.
+        nsplit (int, optional): with recombine=True, total number of files.
+                                e.g. nsplit=4 for *.nc.000[0-3]
+        chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
+                                 Defaults to None, i.e. original chunking
 
     Returns:
         xarray.Dataset: timeserie for field and coordinates
@@ -51,7 +60,8 @@ def load_timeserie(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
+    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
+                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
 
@@ -71,6 +81,8 @@ def write_timeserie(
     chunks=None,
     prefix="./",
     in_memory=True,
+    recombine=False,
+    nsplit=0,
 ):
     """write timeserie of a field from netcdf files contained in tar files
 
@@ -94,6 +106,10 @@ def write_timeserie(
                                 Defaults to "./".
         in_memory (bool, optional): extract data into memory (=no disk IO).
                                     Defaults to True.
+        recombine (bool, optional): recombine files at the format *.nc.????
+                                    Defaults to False.
+        nsplit (int, optional): with recombine=True, total number of files.
+                                e.g. nsplit=4 for *.nc.000[0-3]
 
     """
 
@@ -102,7 +118,8 @@ def write_timeserie(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
+    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
+                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
     # override directory/file names in pp if override
@@ -134,6 +151,9 @@ def compute_average(
     prefix="./",
     avedim="time",
     in_memory=True,
+    recombine=False,
+    nsplit=0,
+    chunks=None,
 ):
     """compute averages of fields from netcdf files contained in tar files
 
@@ -155,6 +175,12 @@ def compute_average(
                                 Defaults to "time".
         in_memory (bool, optional): extract data into memory (=no disk IO).
                                     Defaults to True.
+        recombine (bool, optional): recombine files at the format *.nc.????
+                                    Defaults to False.
+        nsplit (int, optional): with recombine=True, total number of files.
+                                e.g. nsplit=4 for *.nc.000[0-3]
+        chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
+                                 Defaults to None, i.e. original chunking
 
     Returns:
         xarray.Dataset: average dataset
@@ -165,7 +191,8 @@ def compute_average(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
+    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
+                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
 
     # figure out frequency of dataset or exit if it cannot
     freq = infer_freq(comesfrom) if freq is None else freq
@@ -209,6 +236,8 @@ def write_average(
     avedim="time",
     chunks=None,
     in_memory=True,
+    recombine=False,
+    nsplit=0,
 ):
     """write averages of fields from netcdf files contained in tar files
 
@@ -235,6 +264,10 @@ def write_average(
                                  Defaults to None, i.e. original chunking
         in_memory (bool, optional): extract data into memory (=no disk IO).
                                     Defaults to True.
+        recombine (bool, optional): recombine files at the format *.nc.????
+                                    Defaults to False.
+        nsplit (int, optional): with recombine=True, total number of files.
+                                e.g. nsplit=4 for *.nc.000[0-3]
 
     """
 
@@ -243,7 +276,8 @@ def write_average(
     # infer which files from these archives are needed
     used_files = files_needed(comesfrom, yearstart, yearend, ftype=ftype, prefix=prefix)
     # load the dataset from multiple files
-    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory)
+    ds, fids = open_files_from_archives(used_files, used_archives, in_memory=in_memory,
+                                        recombine=recombine, nsplit=nsplit, chunks=chunks)
 
     # figure out frequency of dataset or exit if it cannot
     freq = infer_freq(comesfrom) if freq is None else freq
