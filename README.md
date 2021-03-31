@@ -31,7 +31,8 @@ changing chunk sizes e.g. ```-K time 1 z_l 35```, support for tiled output ```-N
 split files, as well as various other overrides. For example:
 
 ```
-freedompp -t ts -f thetao -c ocean_month_z -s 2018 -e 2018 -d /archive/myrun/history -o /archive/myrun/pp \
+freedompp -t ts -f thetao -c ocean_month_z -s 2018 -e 2018 \
+          -d /archive/myrun/history -o /archive/myrun/pp \
           -K time 1 --prefix="" -R -N 4
 ```
 
@@ -45,29 +46,38 @@ timeseries and averages.
 
 ```python
 from freedompp.libfreedompp import load_timeserie
-ts = load_timeserie('so', 'ocean_month_z', 96, 100, historydir='/archive/myrun/history')
+ts = load_timeserie('so', 'ocean_month_z', 96, 100,
+                    historydir='/archive/myrun/history')
 ```
 
 * write a timeserie to disk:
 
 ```python
 from freedompp.libfreedompp import write_timeserie
-write_timeserie('so', 'ocean_month_z', 96, 100, historydir='/archive/myrun/history', ppdir='/archive/myrun/pp')
+write_timeserie('so', 'ocean_month_z', 96, 100,
+                historydir='/archive/myrun/history',
+                ppdir='/archive/myrun/pp')
 ```
 * compute monthly and annual averages:
 
 ```python
 from freedompp.libfreedompp import compute_average
-monthly = compute_average('ocean_daily',96,100,historydir='/archive/myrun/history', avtype='mm')
-annual = compute_average('ocean_daily',96,100,historydir='/archive/myrun/history', avtype='ann')
+monthly = compute_average('ocean_daily', 96,1 00, avtype='mm',
+                          historydir='/archive/myrun/history')
+annual = compute_average('ocean_daily', 96, 100, avtype='ann',
+                         historydir='/archive/myrun/history')
 ```
 
 * or write them to disk:
 
 ```python
 from freedompp.libfreedompp import write_average
-monthly = compute_average('ocean_daily',96,100,historydir='/archive/myrun/history', avtype='mm', ppdir='/archive/myrun/pp')
-annual = compute_average('ocean_daily',96,100,historydir='/archive/myrun/history', avtype='ann', ppdir='/archive/myrun/pp')
+monthly = compute_average('ocean_daily', 96, 100, avtype='mm',
+                          historydir='/archive/myrun/history', 
+                          ppdir='/archive/myrun/pp')
+annual = compute_average('ocean_daily', 96, 100, avtype='ann',
+                         historydir='/archive/myrun/history',
+                         ppdir='/archive/myrun/pp')
 ```
 
 and all aforementioned options are obviously available in python as well.
