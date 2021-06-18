@@ -38,6 +38,13 @@ freedompp -t ts -f thetao -c ocean_month_z -s 2018 -e 2018 \
 
 recombines (-R) split files .nc.000[0-3] (-N/--nsplit=4) stored in the tar file without a prefix and write the recombined file with a chunking (-K/--chunk) of 1 time record.
 
+By default, freedompp will load netcdf files from the tar files directly into memory. There is an option to write the history files to disk, using:
+
+```
+freedompp -t ts -f so -c D2ocean_month_z -s 2012 -e 2017 \
+          -d /archive/myrun/history -o /archive/myrun/pp \
+          -W -X /work/tmpdir
+```
 
 The package can also be used in interactive python environments, with function to load and write
 timeseries and averages.
@@ -73,7 +80,7 @@ annual = compute_average('ocean_daily', 96, 100, avtype='ann',
 ```python
 from freedompp.libfreedompp import write_average
 monthly = compute_average('ocean_daily', 96, 100, avtype='mm',
-                          historydir='/archive/myrun/history', 
+                          historydir='/archive/myrun/history',
                           ppdir='/archive/myrun/pp')
 annual = compute_average('ocean_daily', 96, 100, avtype='ann',
                          historydir='/archive/myrun/history',
