@@ -141,3 +141,65 @@ def chkdir(ppdir, ppsubdir):
         _ = subprocess.check_call(f"mkdir -p {ppdir}/{ppsubdir}", shell=True)
 
     return None
+
+
+def var_files_from_diagtable(diagtable):
+    """ Read the diag_table and return dictionary of outputted variables
+    and the file root (e.g. ocean_month_z) in which they are written in
+
+    Args:
+        diagtable (str): path to the diag_table to use
+
+    Returns:
+        list of dict: a list of {variable:file} e.g. {"thetao": "ocean_daily"}
+
+    """
+    # open file and read all lines
+    fid = open(diagtable, "r")
+    all_lines = fid.readlines()
+
+    # clean up comments and empty lines
+    processed_lines = []
+    for line in all_lines:
+        # find and remove comment
+        indexcomment = line.find("#")
+        line_nocomment = line[:indexcomment] if indexcomment >= 0 else line
+        # remove empty lines
+        if line_nocomment.strip() != "":
+            processed_lines.append(line_nocomment)
+
+    assert len(processed_lines) > 1
+
+    # build a list of key:value = variable:file
+    variables_in_files = []
+    # clean up punctuation and split line into words
+    for line in processed_lines:
+        words = line.replace('"', "").replace(",", " ").replace("'", "").split()
+
+        # luckily lines defining variables have 8 words
+        # 3rd word is netcdf variable and 4th is the netcdf file type
+        if len(words) == 8:
+            variables_in_files.append({words[2]: words[3]})
+
+    return variables_in_files
+
+
+def extract_files_diagtable(diagtable):
+    """ return all files found in diag_table
+
+    Args:
+        diagtable (str): path to the diag_table to use
+
+    Returns:
+        list: all files defined in diag_table
+
+    """
+
+    variables_in_files = var_files_from_diagtable(diagtable)
+
+    all_occurences = []
+    for k in variables_in_files:
+        all_occurences.append(list(k.values())[0])
+
+    files = list(set(all_occurences))
+    return files
