@@ -75,6 +75,7 @@ def open_files_from_archives(
                     open_files.append(filelike(a, fnnnn))
                 else:
                     if not os.path.exists(f"{tmpdir}/{fnnnn}"):
+                        print(f"extracting {fnnnn} into {tmpdir}")
                         htar.extract(fnnnn, tmpdir)
                     open_files.append(f"{tmpdir}/{fnnnn}")
         else:
@@ -82,6 +83,7 @@ def open_files_from_archives(
                 open_files.append(filelike(a, f))
             else:
                 if not os.path.exists(f"{tmpdir}/{f}"):
+                    print(f"extracting {f} into {tmpdir}")
                     htar.extract(f, tmpdir)
                 open_files.append(f"{tmpdir}/{f}")
 
