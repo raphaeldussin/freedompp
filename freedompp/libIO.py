@@ -22,7 +22,7 @@ def filelike(archive, filename):
 
 
 def open_files_from_archives(
-    files, archives, in_memory=True, recombine=False, nsplit=0, chunks=None
+    files, archives, in_memory=True, recombine=False, nsplit=0, chunks=None, tmpdir=None
 ):
     """build a dataset from list of files and their corresponding archives
 
@@ -31,9 +31,12 @@ def open_files_from_archives(
         archives (list): list of archives containing these files
         in_memory (bool, optional): Extract files into memory not disk.
                                     Defaults to True.
+        tmpdir (str, optional): Where to extract data files.
+                                Defaults to None.
 
     Returns:
         xr.core.dataset.Dataset: produced dataset
+        list of str: open files
     """
 
     if not isinstance(files, list):
@@ -46,6 +49,11 @@ def open_files_from_archives(
                           the same number of elements"
         )
 
+    if not in_memory and tmpdir is None:
+        raise ValueError(
+            "when not uncompressing files in memory, `tmpdir` must be set explicitly"
+        )
+
     kwargs = dict(combine="by_coords", decode_times=False)
     if recombine:
         kwargs.update({"data_vars": "minimal"})
@@ -56,20 +64,32 @@ def open_files_from_archives(
         else:
             kwargs.update({"chunks": chunks})
 
-    if in_memory:
-        flikes = []
-        for f, a in zip(files, archives):
-            if recombine:
-                for kn in range(nsplit):
-                    fnnnn = f"{f}.{kn:04d}"
-                    flikes.append(filelike(a, fnnnn))
+    open_files = []
+    for f, a in zip(files, archives):
+        if not in_memory:
+            htar = tarfile.open(a)
+        if recombine:
+            for kn in range(nsplit):
+                fnnnn = f"{f}.{kn:04d}"
+                if in_memory:
+                    open_files.append(filelike(a, fnnnn))
+                else:
+                    if not os.path.exists(f"{tmpdir}/{fnnnn}"):
+                        htar.extract(fnnnn, tmpdir)
+                    open_files.append(f"{tmpdir}/{fnnnn}")
+        else:
+            if in_memory:
+                open_files.append(filelike(a, f))
             else:
-                flikes.append(filelike(a, f))
-        ds = xr.open_mfdataset(flikes, **kwargs)
-    else:
-        raise NotImplementedError("")
+                if not os.path.exists(f"{tmpdir}/{f}"):
+                    htar.extract(f, tmpdir)
+                open_files.append(f"{tmpdir}/{f}")
 
-    return ds, flikes
+        if not in_memory:
+            htar.close()
+    ds = xr.open_mfdataset(open_files, **kwargs)
+
+    return ds, open_files
 
 
 def close_all_filelikes(flikes):

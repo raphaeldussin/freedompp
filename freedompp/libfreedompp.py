@@ -27,6 +27,7 @@ def load_timeserie(
     recombine=False,
     nsplit=0,
     chunks=None,
+    tmpdir=None,
 ):
     """load timeserie of a field from netcdf files contained in tar files
 
@@ -50,6 +51,8 @@ def load_timeserie(
                                 e.g. nsplit=4 for *.nc.000[0-3]
         chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
                                  Defaults to None, i.e. original chunking
+        tmpdir (str, optional): path to a temporary directory to extract history files.
+                                Mandatory if in_memory = False. Defaults to None.
 
     Returns:
         xarray.Dataset: timeserie for field and coordinates
@@ -67,6 +70,7 @@ def load_timeserie(
         recombine=recombine,
         nsplit=nsplit,
         chunks=chunks,
+        tmpdir=tmpdir,
     )
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
@@ -89,6 +93,7 @@ def write_timeserie(
     in_memory=True,
     recombine=False,
     nsplit=0,
+    tmpdir=None,
 ):
     """write timeserie of a field from netcdf files contained in tar files
 
@@ -116,6 +121,8 @@ def write_timeserie(
                                     Defaults to False.
         nsplit (int, optional): with recombine=True, total number of files.
                                 e.g. nsplit=4 for *.nc.000[0-3]
+        tmpdir (str, optional): path to a temporary directory to extract history files.
+                                Mandatory if in_memory = False. Defaults to None.
 
     """
 
@@ -131,6 +138,7 @@ def write_timeserie(
         recombine=recombine,
         nsplit=nsplit,
         chunks=chunks,
+        tmpdir=tmpdir,
     )
     # extract the timeserie of the chosen field
     ts = extract_timeserie(ds, field)
@@ -166,6 +174,7 @@ def compute_average(
     recombine=False,
     nsplit=0,
     chunks=None,
+    tmpdir=None,
 ):
     """compute averages of fields from netcdf files contained in tar files
 
@@ -193,6 +202,8 @@ def compute_average(
                                 e.g. nsplit=4 for *.nc.000[0-3]
         chunks (dict, optional): chunk sizes for output file, e.g. {'time':1}.
                                  Defaults to None, i.e. original chunking
+        tmpdir (str, optional): path to a temporary directory to extract history files.
+                                Mandatory if in_memory = False. Defaults to None.
 
     Returns:
         xarray.Dataset: average dataset
@@ -210,6 +221,7 @@ def compute_average(
         recombine=recombine,
         nsplit=nsplit,
         chunks=chunks,
+        tmpdir=tmpdir,
     )
 
     # figure out frequency of dataset or exit if it cannot
@@ -256,6 +268,7 @@ def write_average(
     in_memory=True,
     recombine=False,
     nsplit=0,
+    tmpdir=None,
 ):
     """write averages of fields from netcdf files contained in tar files
 
@@ -286,6 +299,8 @@ def write_average(
                                     Defaults to False.
         nsplit (int, optional): with recombine=True, total number of files.
                                 e.g. nsplit=4 for *.nc.000[0-3]
+        tmpdir (str, optional): path to a temporary directory to extract history files.
+                                Mandatory if in_memory = False. Defaults to None.
 
     """
 
@@ -301,6 +316,7 @@ def write_average(
         recombine=recombine,
         nsplit=nsplit,
         chunks=chunks,
+        tmpdir=tmpdir,
     )
 
     # figure out frequency of dataset or exit if it cannot

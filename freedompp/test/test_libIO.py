@@ -1,5 +1,6 @@
 import os
 import tarfile
+import pytest
 
 import numpy as np
 import xarray as xr
@@ -32,8 +33,9 @@ def test_filelike(tmpdir):
     close_all_filelikes(fid)
 
 
-def test_open_files_from_archives(tmpdir):
-    from freedompp.libIO import open_files_from_archives, close_all_filelikes
+@pytest.mark.parametrize("INMEM", [True, False])
+def test_open_files_from_archives(tmpdir, INMEM):
+    from freedompp.libIO import open_files_from_archives, close_all_filelikes, chkdir
 
     ncout = "dummy.00000101.nc"
     testds.to_netcdf(f"{ncout}")
@@ -50,15 +52,29 @@ def test_open_files_from_archives(tmpdir):
     if os.path.exists(os.path.join("./", ncout2)):
         os.remove(os.path.join("./", ncout2))
 
+    chkdir(tmpdir, "extracted")
+
     ds, fids = open_files_from_archives(
         ["./dummy.00000101.nc", "./dummy.00010101.nc"],
         [f"{tmpdir}/00000101.nc.tar", f"{tmpdir}/00010101.nc.tar"],
+        in_memory=INMEM,
+        tmpdir=f"{tmpdir}/extracted",
     )
 
     assert isinstance(ds, xr.core.dataset.Dataset)
     assert len(ds["x"].values) == 20
 
-    close_all_filelikes(fids)
+    if INMEM:
+        close_all_filelikes(fids)
+
+    # test force define tmpdir by user
+    if not INMEM:
+        with pytest.raises(ValueError):
+            ds, fids = open_files_from_archives(
+                ["./dummy.00000101.nc", "./dummy.00010101.nc"],
+                [f"{tmpdir}/00000101.nc.tar", f"{tmpdir}/00010101.nc.tar"],
+                in_memory=INMEM,
+            )
 
 
 def test_chkdir(tmpdir):
