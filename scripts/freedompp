@@ -99,6 +99,24 @@ parser.add_argument(
     help="if recombine=True, nsplit=total of files (e.g. 4 for  .nc.000[0-3])",
 )
 
+parser.add_argument(
+    "-W",
+    "--write_tmp_files",
+    action="store_true",
+    required=False,
+    default=False,
+    help="decompress history nc files to disk",
+)
+
+parser.add_argument(
+    "-X",
+    "--tmpdir",
+    type=str,
+    required=False,
+    default=None,
+    help="if in_memory=False, directory where to extract history nc files",
+)
+
 args = vars(parser.parse_args())
 
 # Check user inputs
@@ -115,6 +133,13 @@ if args["recombine"]:
         raise ValueError("nsplit must be non-zero with recombine=True")
     if args["chunks"] is None:
         raise ValueError("chunks must be defined with recombine=True")
+
+# switch to the internal logic
+args["in_memory"] = False if args["write_tmp_files"] else True
+args.pop("write_tmp_files")
+
+if not args["in_memory"] and (args["tmpdir"] == None):
+    raise ValueError("when decompressing files to disk, -X/--tmpdir must be passed explicitly")
 
 # Decide on what to do and handle parameters accordingly
 compute_avg = False
