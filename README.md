@@ -79,10 +79,10 @@ annual = compute_average('ocean_daily', 96, 100, avtype='ann',
 
 ```python
 from freedompp.libfreedompp import write_average
-monthly = compute_average('ocean_daily', 96, 100, avtype='mm',
+monthly = write_average('ocean_daily', 96, 100, avtype='mm',
                           historydir='/archive/myrun/history',
                           ppdir='/archive/myrun/pp')
-annual = compute_average('ocean_daily', 96, 100, avtype='ann',
+annual = write_average('ocean_daily', 96, 100, avtype='ann',
                          historydir='/archive/myrun/history',
                          ppdir='/archive/myrun/pp')
 ```
