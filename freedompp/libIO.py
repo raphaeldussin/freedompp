@@ -1,5 +1,4 @@
 import os
-import subprocess
 import tarfile
 
 import xarray as xr
@@ -159,7 +158,7 @@ def chkdir(ppdir, ppsubdir):
     if not os.path.exists(ppdir):
         raise IOError(f"{ppdir} does not exists")
 
-    if not os.path.exists(f"{ppdir}/{ppsubdir}"):
-        _ = subprocess.check_call(f"mkdir -p {ppdir}/{ppsubdir}", shell=True)
+    if not os.path.exists(os.path.join(ppdir, ppsubdir)):
+        os.makedirs(os.path.join(ppdir, ppsubdir))
 
     return None
